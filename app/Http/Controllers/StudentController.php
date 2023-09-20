@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         return Student::all();
     }
 
@@ -113,6 +114,23 @@ class StudentController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        $validatedPayload = $request->validate([
+            'id' => 'required|number|exists:students,id',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            Student::destroy($validatedPayload[1]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
             throw $e;
         }
     }
