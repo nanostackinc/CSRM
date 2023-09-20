@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
+    public function index() {
+        return Student::all();
+    }
+
     public function store(Request $request)
     {
         DB::beginTransaction();
