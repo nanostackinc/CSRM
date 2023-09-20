@@ -62,4 +62,58 @@ class StudentController extends Controller
             throw $e;
         }
     }
+
+    public function update(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $request->validate([
+                'id' => 'required|number|exists:students,id',
+            ]);
+
+            if ($request->input('parents')) {
+                Validator::make($request->all(), [
+                    'parents.*.id' => 'required|number|exists:parents,id',
+                    'parents.*.studentId' => 'required|number|exists:students,id',
+                    'parents.*.relationId' => 'required|number|exists:relations,id',
+                    'parents.*.name' => 'required|max:255',
+                    'parents.*.occupation' => 'required|max:255',
+                    'parents.*.address' => 'required',
+                    'parents.*.phone' => 'required|number|max:14',
+                ]);
+            }
+
+            $validatedPayload = $request->validate([
+                'name' => 'required|max:255',
+                'birthdate' => 'required',
+                'address' => 'required',
+                'phone' => 'required|number|max:14',
+            ]);
+
+            $studentId = Student::create([
+                'name' => $validatedPayload['name'],
+                'birthdate' => $validatedPayload['birthdate'],
+                'address' => $validatedPayload['address'],
+                'phone' => $validatedPayload['phone'],
+            ])->id;
+
+            $parents = $request->input('parents');
+            foreach ($parents as $parent) {
+                Parent_::create([
+                    'student_id' => $studentId,
+                    'relation_id' => $parent['relationId'],
+                    'name' => $parent['name'],
+                    'occupation' => $parent['occupatino'],
+                    'address' => $parent['address'],
+                    'phone' => $parent['phone'],
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
 }
