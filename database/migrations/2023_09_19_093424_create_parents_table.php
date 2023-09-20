@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('address');
             $table->string('phone', 14);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('student_id')->references('id')->on('students');
             $table->foreign('relation_id')->references('id')->on('relations');

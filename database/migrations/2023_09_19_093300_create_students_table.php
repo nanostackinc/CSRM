@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('phone', 14);
             $table->text('photo_url')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
